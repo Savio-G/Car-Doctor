@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Logo from '../../assets/assets/logo.svg'
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../../Providers/AuthProvider';
 const NavBar = () => {
+  const { user, logOut } = useContext(AuthContext)
   const NavItems = <>
     <Link to='/' className='mr-5 text-[1.1rem] text-[#151515]'>Home</Link>
     <li className='mr-5 text-[1.1rem] text-[#151515]'>About</li>
     <li className='mr-5 text-[1.1rem] text-[#151515]'>Services</li>
     <li className='mr-5 text-[1.1rem] text-[#151515]'>Blog</li>
     <li className='mr-5 text-[1.1rem] text-[#151515]'>Contact</li>
+    {user?.email ? <Link to="/Bookings"><li className='mr-5 text-[1.1rem] text-[#151515]'>My Bookings</li></Link> : ''}
   </>
+  const handleLogout = () => {
+    logOut()
+      .then()
+      .catch(() => {
+        console.log('logout failed')
+      })
+  }
+
   return (
     <div className="navbar  ">
       <div className="navbar-start">
@@ -28,7 +39,11 @@ const NavBar = () => {
         </ul>
       </div>
       <div className="navbar-end">
-        <a className="btn btn-outline btn-error">Appointment</a>
+        {
+          user ? <button onClick={handleLogout} className="btn btn-error md:mr-3">Logout</button> :
+            <Link to="/Login"> <button className="btn btn-error md:mr-3">Login</button></Link>
+        }
+        <button className="btn btn-outline btn-error">Appointment</button>
       </div>
     </div>
   );
