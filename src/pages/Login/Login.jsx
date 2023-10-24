@@ -1,9 +1,12 @@
 import React, { useContext } from 'react';
 import LoginSvg from '../../assets/assets/images/login/login.svg'
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../Providers/AuthProvider';
 const Login = () => {
   const { existingUser } = useContext(AuthContext)
+  const location = useLocation()
+  const navigate = useNavigate()
+  let from = location.state?.from?.pathname || "/";
   const handleLogin = e => {
     e.preventDefault()
     const form = e.target
@@ -12,7 +15,24 @@ const Login = () => {
     existingUser(email, password)
       .then((result => {
         const user = result.user
-        console.log(user)
+        const loggedUser = {
+          email: user.email
+        }
+
+        fetch('http://localhost:5000/jwt', {
+          method: "POST",
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(loggedUser)
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log('jwt response', data)
+            // Local storage is not the best place to store token maybe the second best place
+            localStorage.setItem('car-doctor access token', data.token)
+            navigate(from, { replace: true });
+          })
         form.reset()
       }))
       .catch((error) => {
